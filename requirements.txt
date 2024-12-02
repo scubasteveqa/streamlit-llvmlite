@@ -2,3 +2,4 @@ streamlit
 numba
 numpy
 qrcode
+mrcfile
