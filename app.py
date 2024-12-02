@@ -3,7 +3,7 @@ import llvmlite.ir as ir
 import llvmlite.binding as llvm
 
 # Streamlit app title
-st.title("LLVM JIT Compilation with llvmlite")
+st.title("Streamlit llvmlite")
 
 # Define an LLVM module and function
 module = ir.Module(name="example")
