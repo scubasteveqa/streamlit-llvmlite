@@ -1,49 +1,56 @@
 import streamlit as st
-import llvmlite.ir as ir
-import llvmlite.binding as llvm
+import numpy as np
+from numba import jit
+import time
 
-# Streamlit app title
-st.title("Streamlit llvmlite")
+# Streamlit App Title
+st.title("Streamlit App with Numba")
 
-# Define an LLVM module and function
-module = ir.Module(name="example")
-func_type = ir.FunctionType(ir.IntType(32), [])
-function = ir.Function(module, func_type, name="main")
+# Introduction
+st.write("""
+This app demonstrates the use of the `Numba` package for just-in-time (JIT) 
+compilation in Python. Numba accelerates numerical computations by compiling Python functions 
+to machine code at runtime.
+""")
 
-# Create a basic block
-block = function.append_basic_block(name="entry")
-builder = ir.IRBuilder(block)
+# Define a regular Python function
+def compute_sum_regular(array):
+    total = 0
+    for i in array:
+        total += i
+    return total
 
-# Add instructions
-int_const = ir.Constant(ir.IntType(32), 42)
-builder.ret(int_const)
+# Define a JIT-optimized function using Numba
+@jit(nopython=True)
+def compute_sum_numba(array):
+    total = 0
+    for i in array:
+        total += i
+    return total
 
-# Display the generated IR
-st.subheader("Generated LLVM IR:")
-st.code(str(module), language="llvm")
+# Create a large random array
+array_size = st.slider("Select Array Size", min_value=1000, max_value=10_000_000, step=1000, value=1_000_000)
+array = np.random.rand(array_size)
 
-# Initialize LLVM and JIT the module
-llvm.initialize()
-llvm.initialize_native_target()
-llvm.initialize_native_asmprinter()
+# Run the regular Python function
+start_time = time.time()
+regular_result = compute_sum_regular(array)
+regular_time = time.time() - start_time
 
-# Compile the module
-target = llvm.Target.from_default_triple()
-target_machine = target.create_target_machine()
-compiled_module = llvm.parse_assembly(str(module))
-compiled_module.verify()
-execution_engine = llvm.create_mcjit_compiler(compiled_module, target_machine)
+# Run the Numba-optimized function
+start_time = time.time()
+numba_result = compute_sum_numba(array)
+numba_time = time.time() - start_time
 
-# Execute the function
-execution_engine.finalize_object()
-entry = execution_engine.get_function_address("main")
+# Display Results
+st.subheader("Results:")
+st.write(f"Sum (Regular Python): {regular_result}")
+st.write(f"Sum (Numba-Optimized): {numba_result}")
 
-# Convert entry (function pointer) to a Python-callable function
-import ctypes
+st.subheader("Performance:")
+st.write(f"Execution Time (Regular Python): {regular_time:.6f} seconds")
+st.write(f"Execution Time (Numba-Optimized): {numba_time:.6f} seconds")
 
-cfunc = ctypes.CFUNCTYPE(ctypes.c_int32)(entry)
-result = cfunc()
-
-# Display the result in the browser
-st.subheader("Execution Result:")
-st.write(f"The function returned: {result}")
+# Highlight performance improvement
+improvement = regular_time / numba_time if numba_time > 0 else 0
+st.write(f"Performance Improvement: {improvement:.2f}x")
