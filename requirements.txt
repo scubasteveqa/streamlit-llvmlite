@@ -1,14 +1,3 @@
-#bokeh==2.4.3
-#finufft
-#mrcfile
 numpy
 numba
-#psutil
-#qrcode
-#scikit_image
-#scipy
-#st-clickable-images
 streamlit
-#uptime
-#xmltodict
-#streamlit-drawable-canvas
