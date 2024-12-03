@@ -4,11 +4,11 @@ mrcfile
 numpy
 numba
 psutil
-qrcode
-scikit_image
-scipy
-st-clickable-images
+#qrcode
+#scikit_image
+#scipy
+#st-clickable-images
 streamlit
-uptime
-xmltodict
+#uptime
+#xmltodict
 streamlit-drawable-canvas
